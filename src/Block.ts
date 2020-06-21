@@ -3,15 +3,15 @@ import { HmacSha256 } from "https://deno.land/std/hash/sha256.ts";
 export class Block {
   private index!: number;
   private timestamp!: number;
-  private hash!: string | undefined;
-  private previousHash!: string;
+  private hash: string = "";
+  private previousHash!: string | null;
   private data!: string;
   private nonce!: number;
 
   public Block = (
     index: number,
     timestamp: number,
-    previousHash: string,
+    previousHash: string | null,
     data: string,
   ) => {
     this.index = index;
@@ -24,30 +24,34 @@ export class Block {
 
   public getIndex = (): number => this.index;
   public getTimestamp = (): number => this.timestamp;
-  public getHash = (): string | undefined => this.hash;
-  public getPreviousHash = (): string => this.previousHash;
+  public getHash = (): string => this.hash;
+  public getPreviousHash = (): string | null => this.previousHash;
   public getData = (): string => this.data;
 
   public str = (): string => {
     return (
-      this.index + this.timestamp + this.previousHash + this.data + this.nonce
+      this.index + this.timestamp + this.previousHash! + this.data + this.nonce
     );
   };
 
   public makeString = (): string => {
-    return `Block #${this.index} [previousHash : ${this.previousHash}, timestamp : ${new Date(
+    return `\nBlock #${this.index}   [\n   previousHash: "${
+      this.previousHash?.substring(0, 10)
+    }...",\n   timestamp: "${new Date(
       this.timestamp,
-    )}, data : ${this.data}, hash : ${this.hash}]`;
+    )}",\n   data: "${this.data}",\n   hash: "${
+      this.hash.substring(0, 10)
+    }..."\n]`;
   };
 
-  public static calculateHash = (block: Block): string | undefined => {
+  public static calculateHash = (block: Block): string | null => {
     if (block) {
-      let digest: HmacSha256 | undefined = undefined;
+      let digest: HmacSha256 | null = null;
 
       try {
         digest = new HmacSha256("");
       } catch (err) {
-        return undefined;
+        return null;
       }
 
       let txt: string = block.str();
@@ -63,18 +67,18 @@ export class Block {
       return builder.toString();
     }
 
-    return undefined;
+    return null;
   };
 
   public mineBlock(difficulty: number): void {
     let nonce: number = 0;
 
     while (
-      this.getHash()!.substring(0, difficulty) !==
+      this.getHash().substring(0, difficulty) !==
         String.prototype.padStart(difficulty, "0").substring(0, difficulty)
     ) {
       nonce++;
-      this.hash = Block.calculateHash(this);
+      this.hash = Block.calculateHash(this)!;
     }
   }
 }
