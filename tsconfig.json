@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "strictPropertyInitialization": false
+    "strictPropertyInitialization": false,
+    "noImplicitAny": false
   },
   "include": ["src/**/*.ts"]
 }

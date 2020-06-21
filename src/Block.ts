@@ -56,9 +56,7 @@ export class Block {
 
       bytes.forEach((byte) => {
         let hex: string = escape(`0xff${byte}`);
-
         if (hex.length === 1) builder.push("0");
-
         builder.push(hex);
       });
 
